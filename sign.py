@@ -10,6 +10,8 @@ signature_script = "js/signature.js"
 patche10_script = "js/patch_e10.js"
 all_scripts = [allow_script, signature_script, patche10_script]
 
+this_name = "sign.py"
+
 
 def scripts_exist(*args):
     if False in map(os.path.isfile, args):
@@ -59,7 +61,7 @@ async def run_just_signature(package, **kwargs):
     app = await get_app(device, package, relaunch)
 
     payload = await app.inject_async(signature_script)
-    print(f"[sign.py] extracted signature: {payload['signatureSha']}")
+    print(f"[{this_name}] extracted signature: {payload['signatureSha']}")
 
 
 async def run_with_signature(package, signature, forcedk, **kwargs):
@@ -81,7 +83,7 @@ async def run_with_signature(package, signature, forcedk, **kwargs):
                "signatureSha": signature,
                "forcedk": forcedk}
 
-    print(f"[sign.py] providing payload: {payload}")
+    print(f"[{this_name}] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
     
     await get_app(device, package, relaunch)
@@ -108,7 +110,7 @@ async def run_auto_signature(package, forcedk, **kwargs):
 
     payload = await app.inject_async(signature_script)
     payload["forcedk"] = forcedk
-    print(f"[sing.py] providing payload: {payload}")
+    print(f"[{this_name}] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
 
     input()
