@@ -1,7 +1,21 @@
 import click
 import asyncio
 import frida
+import os
 from FridaAsync import FridaAsync
+
+
+allow_script = "js/allow.js"
+signature_script = "js/signature.js"
+patche10_script = "js/patch_e10.js"
+all_scripts = [allow_script, signature_script, patche10_script]
+
+
+def scripts_exist(*args):
+    if False in map(os.path.isfile, args):
+        print("Error: required js file missing, compile with npm install")
+        return False
+    return True
 
 
 def launch_app(device, package):
@@ -23,10 +37,12 @@ async def get_app(device, package, relaunch):
 
 
 def run_just_list(package):
+    if not scripts_exist(allow_script):
+        return
     device = frida.get_usb_device()
 
     gms = FridaAsync.attach(device, "com.google.android.gms.persistent")
-    gms.inject("allow.js")
+    gms.inject(allow_script)
 
     launch_app(device, package)
 
@@ -34,26 +50,32 @@ def run_just_list(package):
 
 
 async def run_just_signature(package, **kwargs):
+    if not scripts_exist(signature_script):
+        return
     relaunch = kwargs.get("relaunch", False)
 
     device = frida.get_usb_device()
 
     app = await get_app(device, package, relaunch)
 
-    payload = await app.inject_async("signature.js")
+    payload = await app.inject_async(signature_script)
     print(f"[sign.py] extracted signature: {payload['signatureSha']}")
 
 
 async def run_with_signature(package, signature, **kwargs):
+    if not scripts_exist(allow_script):
+        return
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
+    if patche10 and not scripts_exist(patche10_script):
+        return
 
     device = frida.get_usb_device()
 
     gms = FridaAsync.attach(device, "com.google.android.gms.persistent")
-    allow = gms.inject("allow.js")
+    allow = gms.inject(allow_script)
     if patche10:
-        gms.inject("patch_e10.js")
+        gms.inject(patche10_script)
 
     payload = {"packageName": package,
                "signatureSha": signature}
@@ -67,19 +89,23 @@ async def run_with_signature(package, signature, **kwargs):
 
 
 async def run_auto_signature(package, **kwargs):
+    if not scripts_exist(allow_script, signature_script):
+        return
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
+    if patche10 and not scripts_exist(patche10_script):
+        return
 
     device = frida.get_usb_device()
 
     gms = FridaAsync.attach(device, "com.google.android.gms.persistent")
-    allow = gms.inject("allow.js")
+    allow = gms.inject(allow_script)
     if patche10:
-        gms.inject("patch_e10.js")
+        gms.inject(patche10_script)
 
     app = await get_app(device, package, relaunch)
 
-    payload = await app.inject_async("signature.js")
+    payload = await app.inject_async(signature_script)
     print(f"[sing.py] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
 
