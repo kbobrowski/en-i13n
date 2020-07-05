@@ -11,6 +11,7 @@ patche10_script = "js/patch_e10.js"
 all_scripts = [allow_script, signature_script, patche10_script]
 
 this_name = "sign.py"
+default_delay = 1
 
 
 def scripts_exist(*args):
@@ -26,7 +27,8 @@ def launch_app(device, package):
     return app
 
 
-async def get_app(device, package, relaunch):
+async def get_app(device, package, relaunch, delay):
+    print(f"[{this_name}] launching {package}...")
     if relaunch:
         app = launch_app(device, package)
     else:
@@ -34,7 +36,8 @@ async def get_app(device, package, relaunch):
             app = FridaAsync.attach(device, package)
         except frida.ProcessNotFoundError:
             app = launch_app(device, package)
-    await asyncio.sleep(1)
+    await asyncio.sleep(delay)
+    print(f"[{this_name}] launched {package}")
     return app
 
 
@@ -55,10 +58,11 @@ async def run_just_signature(package, **kwargs):
     if not scripts_exist(signature_script):
         return
     relaunch = kwargs.get("relaunch", False)
+    delay = kwargs.get("delay", default_delay)
 
     device = frida.get_usb_device()
 
-    app = await get_app(device, package, relaunch)
+    app = await get_app(device, package, relaunch, delay)
 
     payload = await app.inject_async(signature_script)
     print(f"[{this_name}] extracted signature: {payload['signatureSha']}")
@@ -70,6 +74,7 @@ async def run_with_signature(package, signature, **kwargs):
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
     forcedk = kwargs.get("forcedk", False)
+    delay = kwargs.get("delay", default_delay)
     if patche10 and not scripts_exist(patche10_script):
         return
 
@@ -87,7 +92,7 @@ async def run_with_signature(package, signature, **kwargs):
     print(f"[{this_name}] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
     
-    await get_app(device, package, relaunch)
+    await get_app(device, package, relaunch, delay)
 
     input()
 
@@ -98,6 +103,7 @@ async def run_auto_signature(package, **kwargs):
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
     forcedk = kwargs.get("forcedk", False)
+    delay = kwargs.get("delay", default_delay)
     if patche10 and not scripts_exist(patche10_script):
         return
 
@@ -108,7 +114,7 @@ async def run_auto_signature(package, **kwargs):
     if patche10:
         gms.inject(patche10_script)
 
-    app = await get_app(device, package, relaunch)
+    app = await get_app(device, package, relaunch, delay)
 
     payload = await app.inject_async(signature_script)
     payload["forcedk"] = forcedk
@@ -126,8 +132,10 @@ async def run_auto_signature(package, **kwargs):
 @click.option("-r", "--relaunch", "relaunch", is_flag=True, help="Force re-launch of the app")
 @click.option("-e", "--patch-e10", "patche10", is_flag=True, help="Patch bug in Play Services causing error 10")
 @click.option("-f", "--force-dk", "forcedk", is_flag=True, help="Force Diagnosis Keys signature validation to true")
-def main(package, signature, just_signature, just_allowed, relaunch, patche10, forcedk):
-    kwargs = {"relaunch": relaunch, "patche10": patche10, "forcedk": forcedk}
+@click.option("-d", "--delay", "delay", type=click.INT, default=default_delay,
+              help=f"Delay between launching the app and submitting scripts (optional, default={default_delay})")
+def main(package, signature, just_signature, just_allowed, relaunch, patche10, forcedk, delay):
+    kwargs = {"relaunch": relaunch, "patche10": patche10, "forcedk": forcedk, "delay": delay}
     if just_signature:
         asyncio.run(run_just_signature(package, **kwargs))
     elif just_allowed:

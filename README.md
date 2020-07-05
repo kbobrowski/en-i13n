@@ -54,7 +54,13 @@ Following log indicates that everything went OK:
 [allow.js] overriding signature
 ```
 
-In case Exposure Notifications framework is initialized before signature could be provided - execute:
+See `pipenv run python sign.py --help` for more options.
+
+#### Troubleshooting
+
+##### Exposure Notifications initialized before signing
+
+In case Exposure Notifications framework is initialized before signature could be provided - try to decrease delay between launching app and executing scripts with `-d` option (current default value: 1), or execute:
 
 `pipenv run python sign.py -p de.rki.coronawarnapp.dev -g`
 
@@ -69,4 +75,6 @@ and then:
 
 `pipenv run python sign.py -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462`
 
-See `pipenv run python sign.py --help` for more options.
+##### Scripts injected before app is initialized
+
+Increase delay with option `-d`, or execute commands only when the app is already running.
