@@ -10,13 +10,16 @@ def launch_app(device, package):
     return app
 
 
-def get_app(device, package, relaunch):
+async def get_app(device, package, relaunch):
     if relaunch:
-        return launch_app(device, package)
-    try:
-        return FridaAsync.attach(device, package)
-    except frida.ProcessNotFoundError:
-        return launch_app(device, package)
+        app = launch_app(device, package)
+    else:
+        try:
+            app = FridaAsync.attach(device, package)
+        except frida.ProcessNotFoundError:
+            app = launch_app(device, package)
+    await asyncio.sleep(2)
+    return app
 
 
 def run_just_list(package):
@@ -35,13 +38,13 @@ async def run_just_signature(package, **kwargs):
 
     device = frida.get_usb_device()
 
-    app = get_app(device, package, relaunch)
+    app = await get_app(device, package, relaunch)
 
     payload = await app.inject_async("signature.js")
     print(f"[sign.py] extracted signature: {payload['signatureSha']}")
 
 
-def run_with_signature(package, signature, **kwargs):
+async def run_with_signature(package, signature, **kwargs):
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
 
@@ -58,7 +61,7 @@ def run_with_signature(package, signature, **kwargs):
     print(f"[sign.py] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
     
-    get_app(device, package, relaunch)
+    await get_app(device, package, relaunch)
 
     input()
 
@@ -74,7 +77,7 @@ async def run_auto_signature(package, **kwargs):
     if patche10:
         gms.inject("patch_e10.js")
 
-    app = get_app(device, package, relaunch)
+    app = await get_app(device, package, relaunch)
 
     payload = await app.inject_async("signature.js")
     print(f"[sing.py] providing payload: {payload}")
@@ -97,7 +100,7 @@ def main(package, signature, just_signature, just_allowed, relaunch, patche10):
     elif just_allowed:
         run_just_list(package)
     elif signature:
-        run_with_signature(package, signature, **kwargs)
+        asyncio.run(run_with_signature(package, signature, **kwargs))
     else:
         asyncio.run(run_auto_signature(package, **kwargs))
 
