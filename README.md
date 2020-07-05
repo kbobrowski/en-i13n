@@ -57,3 +57,7 @@ and then:
 
 `pipenv run python sign.py -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462`
 
+For hot reloading of the app from Android Studio it may be convenient to just patch GMS without re-launching the app using `-j` option:
+
+`pipenv run python sign.py -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462 -j`
+
