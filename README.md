@@ -78,3 +78,7 @@ and then:
 ##### Scripts injected before app is initialized
 
 Increase delay with option `-d`, or execute commands only when the app is already running.
+
+##### 39508 error
+
+This happens when `provideDiagnosisKeys` is called more than 20 times a day - it's a limit imposed by Google.
