@@ -106,7 +106,7 @@ async def run_auto_signature(package, **kwargs):
     app = await get_app(device, package, relaunch)
 
     payload = await app.inject_async(signature_script)
-    print(f"[sing.py] providing payload: {payload}")
+    print(f"[sign.py] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
 
     input()

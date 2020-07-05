@@ -39,7 +39,8 @@ version as frida server in [Pipfile](Pipfile))
 navigating to the Activity which requires Exposure Notifications:
 `pipenv run python sign.py -p de.rki.coronawarnapp -a`
 - Pick one of the names in the list and assign it to the application ID of the custom app, e.g. `de.rki.coronawarnapp.dev`
-- Install custom app with any signature
+- Install custom app with any signature  
+  Note: The app should include `implementation "commons-codec:commons-codec:1.13"` in `build.gradle`
 - Spawn custom app with `pipenv run python sign.py -p de.rki.coronawarnapp.dev`
 
 Following log indicates that everything went OK:
@@ -47,7 +48,7 @@ Following log indicates that everything went OK:
 ```
 [allow.js] injecting
 [signature.js] injecting
-[sing.py] providing payload: {'signatureSha': '854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462', 'packageName': 'de.rki.coronawarnapp.dev'}
+[sign.py] providing payload: {'signatureSha': '854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462', 'packageName': 'de.rki.coronawarnapp.dev'}
 [allow.js] received payload
 [allow.js] overriding signature
 ```
