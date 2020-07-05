@@ -7,6 +7,16 @@ provide community support for developing and debugging national apps
 [#774](https://github.com/corona-warn-app/cwa-app-android/issues/774),
 [#737](https://github.com/corona-warn-app/cwa-app-android/issues/737)).
 
+#### Compatibility notes
+
+- Confirmed to be working with Play Services 20.21.17
+
+- Devices with Android 6 (and perhaps others as well) need to use `-e` option
+to patch a bug in Play Services 20.21.17
+
+- Note that if package name defined in file with Diagnosis Keys is not matching
+current app package name it will result in ApiException
+
 #### How is it working
 
 The trick is to override app signature on the fly while Play Services is parsing
