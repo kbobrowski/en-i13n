@@ -14,8 +14,9 @@ provide community support for developing and debugging national apps
 - Devices with Android 6 (and perhaps others as well) need to use `-e` option
 to patch a bug in Play Services 20.21.17
 
-- Note that if package name defined in file with Diagnosis Keys is not matching
-current app package name it will result in ApiException
+- If package name defined in file with Diagnosis Keys is not matching
+package name of the app then `-f` option has to be used to force validation
+of Diagnosis Keys file
 
 #### How is it working
 

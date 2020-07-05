@@ -32,7 +32,7 @@ async def get_app(device, package, relaunch):
             app = FridaAsync.attach(device, package)
         except frida.ProcessNotFoundError:
             app = launch_app(device, package)
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
     return app
 
 
@@ -62,7 +62,7 @@ async def run_just_signature(package, **kwargs):
     print(f"[sign.py] extracted signature: {payload['signatureSha']}")
 
 
-async def run_with_signature(package, signature, **kwargs):
+async def run_with_signature(package, signature, forcedk, **kwargs):
     if not scripts_exist(allow_script):
         return
     relaunch = kwargs.get("relaunch", False)
@@ -78,7 +78,8 @@ async def run_with_signature(package, signature, **kwargs):
         gms.inject(patche10_script)
 
     payload = {"packageName": package,
-               "signatureSha": signature}
+               "signatureSha": signature,
+               "forcedk": forcedk}
 
     print(f"[sign.py] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
@@ -88,7 +89,7 @@ async def run_with_signature(package, signature, **kwargs):
     input()
 
 
-async def run_auto_signature(package, **kwargs):
+async def run_auto_signature(package, forcedk, **kwargs):
     if not scripts_exist(allow_script, signature_script):
         return
     relaunch = kwargs.get("relaunch", False)
@@ -106,6 +107,7 @@ async def run_auto_signature(package, **kwargs):
     app = await get_app(device, package, relaunch)
 
     payload = await app.inject_async(signature_script)
+    payload["forcedk"] = forcedk
     print(f"[sing.py] providing payload: {payload}")
     allow.post({"type": "signature", "payload": payload})
 
@@ -119,16 +121,17 @@ async def run_auto_signature(package, **kwargs):
 @click.option("-a", "--allowed-packages", "just_allowed", is_flag=True, help="List all allowed packages")
 @click.option("-r", "--relaunch", "relaunch", is_flag=True, help="Force re-launch of the app")
 @click.option("-e", "--patch-e10", "patche10", is_flag=True, help="Patch bug in Play Services causing error 10")
-def main(package, signature, just_signature, just_allowed, relaunch, patche10):
+@click.option("-f", "--force-dk", "forcedk", is_flag=True, help="Force Diagnosis Keys signature validation to true")
+def main(package, signature, just_signature, just_allowed, relaunch, patche10, forcedk):
     kwargs = {"relaunch": relaunch, "patche10": patche10}
     if just_signature:
         asyncio.run(run_just_signature(package, **kwargs))
     elif just_allowed:
         run_just_list(package)
     elif signature:
-        asyncio.run(run_with_signature(package, signature, **kwargs))
+        asyncio.run(run_with_signature(package, signature, forcedk, **kwargs))
     else:
-        asyncio.run(run_auto_signature(package, **kwargs))
+        asyncio.run(run_auto_signature(package, forcedk, **kwargs))
 
 
 if __name__ == "__main__":
