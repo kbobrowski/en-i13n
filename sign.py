@@ -64,11 +64,12 @@ async def run_just_signature(package, **kwargs):
     print(f"[{this_name}] extracted signature: {payload['signatureSha']}")
 
 
-async def run_with_signature(package, signature, forcedk, **kwargs):
+async def run_with_signature(package, signature, **kwargs):
     if not scripts_exist(allow_script):
         return
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
+    forcedk = kwargs.get("forcedk", False)
     if patche10 and not scripts_exist(patche10_script):
         return
 
@@ -91,11 +92,12 @@ async def run_with_signature(package, signature, forcedk, **kwargs):
     input()
 
 
-async def run_auto_signature(package, forcedk, **kwargs):
+async def run_auto_signature(package, **kwargs):
     if not scripts_exist(allow_script, signature_script):
         return
     relaunch = kwargs.get("relaunch", False)
     patche10 = kwargs.get("patche10", False)
+    forcedk = kwargs.get("forcedk", False)
     if patche10 and not scripts_exist(patche10_script):
         return
 
@@ -125,15 +127,15 @@ async def run_auto_signature(package, forcedk, **kwargs):
 @click.option("-e", "--patch-e10", "patche10", is_flag=True, help="Patch bug in Play Services causing error 10")
 @click.option("-f", "--force-dk", "forcedk", is_flag=True, help="Force Diagnosis Keys signature validation to true")
 def main(package, signature, just_signature, just_allowed, relaunch, patche10, forcedk):
-    kwargs = {"relaunch": relaunch, "patche10": patche10}
+    kwargs = {"relaunch": relaunch, "patche10": patche10, "forcedk": forcedk}
     if just_signature:
         asyncio.run(run_just_signature(package, **kwargs))
     elif just_allowed:
         run_just_list(package)
     elif signature:
-        asyncio.run(run_with_signature(package, signature, forcedk, **kwargs))
+        asyncio.run(run_with_signature(package, signature, **kwargs))
     else:
-        asyncio.run(run_auto_signature(package, forcedk, **kwargs))
+        asyncio.run(run_auto_signature(package, **kwargs))
 
 
 if __name__ == "__main__":
