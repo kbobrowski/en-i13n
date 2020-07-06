@@ -1,10 +1,13 @@
 Java.perform(() => {
     const scriptName = "allow.js"
+    const payloadWarning = `[${scriptName}] Payload not yet received. Consider running with -s option`
     console.log(`[${scriptName}] injecting`);
     try {
         const stringClass = Java.use('java.lang.String');
         const signatureClass = Java.use('java.security.Signature');
-        let payload: {signatureSha: string; packageName: string; forcedk: boolean} | null = null;
+        const timeUnitHoursClassName = Java.use('java.util.concurrent.TimeUnit').HOURS.value.getClass().getName();
+        const timeUnitHoursClass = Java.use(timeUnitHoursClassName);
+        let payload: {signatureSha: string; packageName: string; forcedk: boolean, unlimiteddk: boolean} | null = null;
         let warningPrinted = false;
 
         recv("signature", (message: any) => {
@@ -14,16 +17,31 @@ Java.perform(() => {
             }
         })
 
+        timeUnitHoursClass.toMillis.overload('long').implementation = function(duration: number) {
+            if (duration == 24) {
+                if (payload) {
+                    if (payload.unlimiteddk) {
+                        console.log(`[${scriptName}] TimeUnit.HOURS :: toMillis(duration=${duration}) -> forcing 1`);
+                        return 1;
+                    }
+                } else if (!warningPrinted) {
+                    warningPrinted = true;
+                    console.log(payloadWarning);
+                }
+            }
+            return this.toMillis(duration);
+        }
+
         signatureClass.verify.overload('[B').implementation = function(signature: number[]) {
             const result = this.verify(signature);
             if (payload) {
                 if (!result && payload.forcedk) {
-                    console.log(`[${scriptName}] ${this} :: verify(byte[]) -> forcing true`);
+                    console.log(`[${scriptName}] Signature :: verify(byte[]) -> forcing true`);
                     return true;
                 }
-            } else {
-                console.log(`[${scriptName}] Diagnosis Keys signature checking has already started, but instruction to override` +
-                    " not received yet. Run with -s option.");
+            } else if (!warningPrinted) {
+                warningPrinted = true;
+                console.log(payloadWarning);
             }
             return result;
         }
@@ -35,8 +53,7 @@ Java.perform(() => {
                     if (!payload) {
                         if (!warningPrinted) {
                             warningPrinted = true;
-                            console.log(`[${scriptName}] Signature checking has already started, but package name and signature` +
-                                " not received yet. Listing possible package names.");
+                            console.log(payloadWarning);
                         }
                         console.log(`[${scriptName}] possible package name: ${splitted[0]}`);
                     } else {

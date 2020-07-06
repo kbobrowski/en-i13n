@@ -17,7 +17,7 @@ Java.perform(() => {
                         break;
                     }
                 }
-                console.log(`[${scriptName}] ${this} :: read(byte[]) = ${bufferIndex}`)
+                console.log(`[${scriptName}] PipedInputStream :: read(byte[]) = ${bufferIndex}`)
             } else {
                 bufferIndex = this.read(buffer);
             }

@@ -5,30 +5,23 @@ Exposure Notifications framework with custom / forked app. The purpose is to
 provide community support for developing and debugging national apps
 (severity of the issues are visible e.g. in case of German app:
 [#774](https://github.com/corona-warn-app/cwa-app-android/issues/774),
-[#737](https://github.com/corona-warn-app/cwa-app-android/issues/737)).
+[#737](https://github.com/corona-warn-app/cwa-app-android/issues/737),
+[#822](https://github.com/corona-warn-app/cwa-app-android/issues/822)).
 
-#### Compatibility notes
+### Features
+
+- Override APK signature check
+- Override signature validation of files with Diagnosis Keys (`-f`)
+- Remove daily limit on number of calls with Diagnosis Keys which is
+causing `39508` error (`-u`)
+- Patch a bug causing `10: Unable to validate key file signature: Pipe is closed`
+in Play Services 20.21.17 (`-e`)
+
+### Compatibility notes
 
 - Confirmed to be working with Play Services 20.21.17
 
-- Devices with Android 6 (and perhaps others as well) need to use `-e` option
-to patch a bug in Play Services 20.21.17
-
-- If package name defined in file with Diagnosis Keys is not matching
-package name of the app then `-f` option has to be used to force validation
-of Diagnosis Keys file
-
-#### How is it working
-
-The trick is to override app signature on the fly while Play Services is parsing
-list of allowed apps. It does not exploit any vulnerability, and it does not
-allow to deploy custom / forked apps to the Play Store. Using this method requires
-deliberate action on the user side and rooted phone. Any information that can be
-extracted from Exposure Notifications framework using this method is already
-available to the user with rooted phone anyway, as data stored by Exposure Notifications
-framework are unencrypted.
-
-#### How to use
+### How to use
 
 - Start [frida](https://frida.re/) server on Android device using adb shell. Tested with
 version `12.8.12` - new versions did not work on my device with Android 6. Server can be downloaded
@@ -56,9 +49,9 @@ Following log indicates that everything went OK:
 
 See `pipenv run python sign.py --help` for more options.
 
-#### Troubleshooting
+### Troubleshooting
 
-##### Exposure Notifications initialized before signing
+#### Exposure Notifications initialized before signing
 
 In case Exposure Notifications framework is initialized before signature could be provided - try to decrease delay between launching app and executing scripts with `-d` option (current default value: 1), or execute:
 
@@ -75,10 +68,19 @@ and then:
 
 `pipenv run python sign.py -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462`
 
-##### Scripts injected before app is initialized
+#### Scripts injected before app is initialized
 
 Increase delay with option `-d`, or execute commands only when the app is already running.
 
-##### 39508 error
+#### 39508 error
 
 This happens when `provideDiagnosisKeys` is called more than 20 times a day - it's a limit imposed by Google.
+
+### Disclaimer
+
+This software does not exploit any vulnerability, and it does not
+allow to deploy custom / forked apps to the Play Store. Using this method requires
+deliberate action on the user side and rooted phone. Any information that can be
+extracted from Exposure Notifications framework using this method is already
+available to the user with rooted phone anyway, as data stored by Exposure Notifications
+framework are unencrypted.
