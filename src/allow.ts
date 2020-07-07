@@ -1,6 +1,6 @@
 Java.perform(() => {
     const scriptName = "allow.js"
-    const payloadWarning = `[${scriptName}] Payload not yet received. Consider running with -s option`
+    const payloadWarning = `[${scriptName}] Payload not yet received.`
     console.log(`[${scriptName}] injecting`);
     try {
         const stringClass = Java.use('java.lang.String');

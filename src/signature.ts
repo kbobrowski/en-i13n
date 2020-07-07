@@ -12,10 +12,7 @@ Java.perform(() => {
         const signatureBytes = signaturesObject.value[0].toByteArray();
         const mdInstance = md.getInstance('SHA-256');
         const signatureSha = str.$new(hex.encodeHex(mdInstance.digest(signatureBytes))).toUpperCase();
-        send({
-            signatureSha,
-            packageName
-        });
+        console.log(`[${scriptName}] signature = ${signatureSha}`)
     } catch (e) {
         console.log(e);
     }

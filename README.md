@@ -2,75 +2,69 @@
 
 This project is allowing anyone with rooted Android device to access
 Exposure Notifications framework with custom / forked app. The purpose is to
-provide community support for developing and debugging national apps
-(severity of the issues are visible e.g. in case of German app:
-[#774](https://github.com/corona-warn-app/cwa-app-android/issues/774),
-[#737](https://github.com/corona-warn-app/cwa-app-android/issues/737),
-[#822](https://github.com/corona-warn-app/cwa-app-android/issues/822)).
+provide community support for developing and debugging national apps.
 
-### Features
 
-- Override APK signature check
-- Override signature validation of files with Diagnosis Keys (`-f`)
-- Remove daily limit on number of calls with Diagnosis Keys which is
-causing `39508` error (`-u`)
-- Patch a bug causing `10: Unable to validate key file signature: Pipe is closed`
-in Play Services 20.21.17 (`-e`)
+### Quick start
 
-### Compatibility notes
+- Start [frida](https://frida.re/docs/android/) server on Android (make sure to use
+the same version as in Pipfile - download from [here](https://github.com/frida/frida/releases/download/12.8.12/frida-server-12.8.12-android-arm.xz)).
 
-- Confirmed to be working with Play Services 20.21.17
+- Execute in this repo:
 
-### How to use
-
-- Start [frida](https://frida.re/) server on Android device using adb shell. Tested with
-version `12.8.12` - new versions did not work on my device with Android 6. Server can be downloaded
-from [here](https://github.com/frida/frida/releases/download/12.8.12/frida-server-12.8.12-android-arm.xz).
-- Compile typescript scripts in this repo: `npm install`
-- Set up pipenv environment: `pipenv install` (make sure that frida client has the same
-version as frida server in [Pipfile](Pipfile))
-- List all allowed package names by launching package which is already allowed and
-navigating to the Activity which requires Exposure Notifications:
-`pipenv run python sign.py -p de.rki.coronawarnapp -a`
-- Pick one of the names in the list and assign it to the application ID of the custom app, e.g. `de.rki.coronawarnapp.dev`
-- Install custom app with any signature  
-  Note: The app should include `implementation "commons-codec:commons-codec:1.13"` in `build.gradle`
-- Spawn custom app with `pipenv run python sign.py -p de.rki.coronawarnapp.dev`
-
-Following log indicates that everything went OK:
-
+```bash
+$ npm install
+$ pipenv install
+$ pipenv run python en.py list-allowed
 ```
+
+- Start covid app which is using Exposure Notifications and navigate to a place
+where Exposure Notifications API is accessed (usually main screen of the app). Pick
+one name from the list of apps printed:
+
+```bash
 [allow.js] injecting
+[allow.js] Payload not yet received.
+[allow.js] possible package name: com.google.android.apps.apollo
+[allow.js] possible package name: com.google.android.apps.exposurenotification
+[allow.js] possible package name: com.google.location.nearby.apps.contacttracer
+...
+```
+
+- Assign chosen package name (e.g. `de.rki.coronawarnapp.dev`) to your custom app (note: your app should include `implementation "commons-codec:commons-codec:1.13"` in `build.gradle`) and execute:
+
+```bash
+$ pipenv run python en.py get-signature -p de.rki.coronawarnapp.dev
 [signature.js] injecting
-[sign.py] providing payload: {'signatureSha': '854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462', 'packageName': 'de.rki.coronawarnapp.dev'}
+[signature.js] signature = 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462
+
+$ pipenv run python en.py sign -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462
+[allow.js] injecting
 [allow.js] received payload
 [allow.js] overriding signature
 ```
 
-See `pipenv run python sign.py --help` for more options.
-
-### Troubleshooting
-
-#### Exposure Notifications initialized before signing
-
-In case Exposure Notifications framework is initialized before signature could be provided - try to decrease delay between launching app and executing scripts with `-d` option (current default value: 1), or execute:
-
-`pipenv run python sign.py -p de.rki.coronawarnapp.dev -g`
-
-to just retrieve signature:
+See `pipenv run python en.py sign --help` for more options:
 
 ```
-[signature.js] injecting
-[sign.py] extracted signature: 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462
+Usage: en.py sign [OPTIONS]
+
+Options:
+  -p, --package TEXT    Package name (has to be one of the allowed apps)
+                        [required]
+
+  -s, --signature TEXT  SHA-256 of the app signature  [required]
+  -f, --force-dk        Force Diagnosis Keys signature validation
+  -u, --unlimited-dk    Limit on number of calls to provideDiagnosisKeys
+                        resets every 1ms instead of 24h
+
+  -e, --patch-e10       Patch bug in Play Services causing error 10 (Pipe is
+                        closed, affects Android 6)
 ```
 
-and then:
+### Compatibility notes
 
-`pipenv run python sign.py -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462`
-
-#### Scripts injected before app is initialized
-
-Increase delay with option `-d`, or execute commands only when the app is already running.
+- Confirmed to be working with Play Services 20.21.17
 
 ### Disclaimer
 
