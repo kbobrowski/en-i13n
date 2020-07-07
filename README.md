@@ -67,7 +67,9 @@ Options:
   -s, --signature TEXT  SHA-256 of the app signature  [required]
   -f, --force-dk        Force Diagnosis Keys signature validation
   -u, --unlimited-dk    Limit on number of calls to provideDiagnosisKeys
-                        resets every 1ms instead of 24h
+                        resets every 1ms instead of 24h (careful - going back
+                        to the previous behavior after using this option
+                        requires cleaning all the app data)
 
   -e, --patch-e10       Patch bug in Play Services causing error 10 (Pipe is
                         closed, affects Android 6)

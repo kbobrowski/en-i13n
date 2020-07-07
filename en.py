@@ -76,7 +76,9 @@ def sign(package, signature, patche10, forcedk, unlimiteddk):
 @click.option("-s", "--signature", "signature", help="SHA-256 of the app signature", required=True)
 @click.option("-f", "--force-dk", "forcedk", is_flag=True, help="Force Diagnosis Keys signature validation")
 @click.option("-u", "--unlimited-dk", "unlimiteddk", is_flag=True,
-              help="Limit on number of calls to provideDiagnosisKeys resets every 1ms instead of 24h")
+              help="Limit on number of calls to provideDiagnosisKeys resets every 1ms instead of 24h "
+                   "(careful - going back to the previous behavior after using this option requires "
+                   "cleaning all the app data)")
 @click.option("-e", "--patch-e10", "patche10", is_flag=True,
               help="Patch bug in Play Services causing error 10 (Pipe is closed, affects Android 6)")
 def sign_command(**kwargs):
