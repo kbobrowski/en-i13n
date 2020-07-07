@@ -15,6 +15,13 @@ the same version as in Pipfile - download from [here](https://github.com/frida/f
 ```bash
 $ npm install
 $ pipenv install
+```
+
+#### Run custom app with Exposure Notifications framework
+
+- Execute:
+
+```bash
 $ pipenv run python en.py list-allowed
 ```
 
@@ -65,6 +72,16 @@ Options:
   -e, --patch-e10       Patch bug in Play Services causing error 10 (Pipe is
                         closed, affects Android 6)
 ```
+
+#### Just patching a bug in Play Services affecting Android 6
+
+Execute:
+
+```bash
+pipenv run python en.py patch
+```
+
+and launch original corona app.
 
 ### Compatibility notes
 
