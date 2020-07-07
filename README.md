@@ -15,13 +15,6 @@ the same version as in Pipfile - download from [here](https://github.com/frida/f
 ```bash
 $ npm install
 $ pipenv install
-```
-
-#### Run custom app with Exposure Notifications framework
-
-- Execute:
-
-```bash
 $ pipenv run python en.py list-allowed
 ```
 
