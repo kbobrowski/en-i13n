@@ -31,13 +31,17 @@ one name from the list of apps printed:
 ...
 ```
 
-- Assign chosen package name (e.g. `de.rki.coronawarnapp.dev`) to your custom app (note: your app should include `implementation "commons-codec:commons-codec:1.13"` in `build.gradle`) and execute:
+- Assign chosen package name (e.g. `de.rki.coronawarnapp.dev`) to your custom app (note: your app should include `implementation "commons-codec:commons-codec:1.13"` in `build.gradle`), run the custom app on the device, and execute:
 
 ```bash
 $ pipenv run python en.py get-signature -p de.rki.coronawarnapp.dev
 [signature.js] injecting
 [signature.js] signature = 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462
+```
 
+- Patch Play Services by executing (note: this is independent from the custom app running or not):
+
+```bash
 $ pipenv run python en.py sign -p de.rki.coronawarnapp.dev -s 854528796DB85A3155FAAF92043CD3C42163CB9FA3C6709324A7F39DF4158462
 [allow.js] injecting
 [allow.js] received payload
