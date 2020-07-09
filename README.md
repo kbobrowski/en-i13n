@@ -8,7 +8,7 @@ provide community support for developing and debugging national apps.
 ### Quick start
 
 - Start [frida](https://frida.re/docs/android/) server on Android (make sure to use
-the same version as in Pipfile - download from [here](https://github.com/frida/frida/releases/download/12.8.12/frida-server-12.8.12-android-arm.xz)).
+the same version as in Pipfile - download `frida-server-12.8.12-android-{your_arch}.xz` from [here](https://github.com/frida/frida/releases/tag/12.8.12)).
 
 - Execute in this repo:
 
@@ -77,6 +77,12 @@ pipenv run python en.py patch
 ```
 
 and launch original corona app.
+
+### Running without USB connection
+
+You can use `frida-inject-12.8.12-android-{your_arch}` downloaded from [here](https://github.com/frida/frida/releases/tag/12.8.12)
+to execute script injection from the device itself. Example script: [inject.sh](inject.sh) (adjust `--parameters` passed to `frida-inject` and
+paths at the top of the script).
 
 ### Compatibility notes
 

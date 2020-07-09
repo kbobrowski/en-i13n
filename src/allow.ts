@@ -1,13 +1,33 @@
+
+interface Payload {
+    signatureSha: string;
+    packageName: string;
+    forcedk: boolean;
+    unlimiteddk: boolean;
+}
+
+const scriptName = "allow.js"
+let payload: Payload | null = null;
+
+rpc.exports.init = function(stage: any, parameters: Payload) {
+    const emptyPayload = {
+        signatureSha: "",
+        packageName: "",
+        forcedk: false,
+        unlimiteddk: false
+    }
+    payload = {...emptyPayload, ...parameters};
+    console.log(`[${scriptName}] payload: ${JSON.stringify(payload)}`)
+}
+
 Java.perform(() => {
-    const scriptName = "allow.js"
-    const payloadWarning = `[${scriptName}] Payload not yet received.`
+    const payloadWarning = `[${scriptName}] payload not yet received`
     console.log(`[${scriptName}] injecting`);
     try {
         const stringClass = Java.use('java.lang.String');
         const signatureClass = Java.use('java.security.Signature');
         const timeUnitHoursClassName = Java.use('java.util.concurrent.TimeUnit').HOURS.value.getClass().getName();
         const timeUnitHoursClass = Java.use(timeUnitHoursClassName);
-        let payload: {signatureSha: string; packageName: string; forcedk: boolean, unlimiteddk: boolean} | null = null;
         let warningPrinted = false;
 
         recv("signature", (message: any) => {
