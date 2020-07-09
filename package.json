@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "prepare": "npm run build",
-    "build": "frida-compile src/allow.ts -o js/allow.js && frida-compile src/signature.ts -o js/signature.js && frida-compile src/patch_e10.ts -o js/patch_e10.js"
+    "build": "frida-compile src/allow.ts -o js/allow.js && frida-compile src/allow_args.ts -o js/allow_args.js && frida-compile src/signature.ts -o js/signature.js && frida-compile src/patch_e10.ts -o js/patch_e10.js"
   },
   "devDependencies": {
     "@types/frida-gum": "^16.0.0",
