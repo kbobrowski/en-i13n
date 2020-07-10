@@ -84,6 +84,11 @@ You can use `frida-inject-12.8.12-android-{your_arch}` downloaded from [here](ht
 to execute script injection from the device itself. Example script: [inject.sh](inject.sh) (adjust `--parameters` passed to `frida-inject` and
 paths at the top of the script).
 
+### Starting on boot
+
+Execute `sh build-magisk.sh` to package Magisk module. It simply executes `inject.sh` from `/data/local/tmp/` on boot.
+Make sure that `inject.sh` is configured properly.
+
 ### Compatibility notes
 
 - Confirmed to be working with Play Services 20.21.17
