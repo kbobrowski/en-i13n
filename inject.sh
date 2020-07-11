@@ -2,27 +2,28 @@
 fridaserver=/data/local/tmp/frida-server-12.8.12-android-arm
 fridainject=/data/local/tmp/frida-inject-12.8.12-android-arm
 allowscript=/data/local/tmp/allow.js
+pscommand="ps" # note: you may need to use "ps -e"
 
 scriptname="inject.sh"
 echo "[$scriptname] starting"
 
 while true
 do
-  fridarunning=`ps -e | grep frida-server | wc -l`
-  scriptrunning=`ps -e | grep frida-inject | wc -l`
+  fridarunning=`$pscommand | grep frida-server | wc -l`
+  scriptrunning=`$pscommand | grep frida-inject | wc -l`
   if [ $fridarunning -ne 1 ]
   then
     if [ $scriptrunning -eq 1 ]
     then
       echo "[$scriptname] killing inject"
-      ps -e | grep frida-inject | xargs sh -c 'kill -9 $1'
+      $pscommand | grep frida-inject | xargs sh -c 'kill -9 $1'
     fi
     echo "[$scriptname] starting frida"
     $fridaserver -D
   fi
 
   sleep 10
-  scriptrunning=`ps -e | grep frida-inject | wc -l`
+  scriptrunning=`$pscommand | grep frida-inject | wc -l`
   if [ $scriptrunning -ne 1 ]
   then
     echo "[$scriptname] starting inject"
