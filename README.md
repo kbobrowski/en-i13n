@@ -91,7 +91,7 @@ Make sure that `inject.sh` is configured properly.
 
 ### Compatibility notes
 
-- Confirmed to be working with Play Services 20.21.17
+- Confirmed to be working with Play Services 20.26.13
 
 ### Disclaimer
 
