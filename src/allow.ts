@@ -67,23 +67,28 @@ Java.perform(() => {
         }
 
         stringClass.split.overload('java.lang.String').implementation = function(separator: string) {
-            if (separator === ":") {
-                const splitted: string[] = this.split(separator);
-                if (splitted.length === 2) {
-                    if (!payload) {
-                        if (!warningPrinted) {
-                            warningPrinted = true;
-                            console.log(payloadWarning);
-                        }
-                        console.log(`[${scriptName}] possible package name: ${splitted[0]}`);
-                    } else {
-                        if (splitted[0] === payload.packageName) {
+            const testStr = stringClass.$new("com.google.android.apps.exposurenotification:");
+            if (separator === "," && this.contains(testStr)) {
+                if (!payload) {
+                    if (!warningPrinted) {
+                        warningPrinted = true;
+                        console.log(payloadWarning);
+                    }
+                    this.split(separator).forEach((entry: any) => {
+                        console.log(`[${scriptName}] possible package name: ${entry.split(':')[0]}`);
+                    })
+                } else {
+                    const nameSigArray = this.split(separator);
+                    for (let i=0; i<nameSigArray.length; i++) {
+                        if (nameSigArray[i].split(':')[0] === payload.packageName) {
                             console.log(`[${scriptName}] overriding signature`);
-                            return Java.array('java.lang.String', [payload.packageName, payload.signatureSha]);
+                            nameSigArray[i] = `${payload.packageName}:${payload.signatureSha}`;
                         }
                     }
+                    return nameSigArray;
                 }
             }
+
             return this.split(separator);
         }
     } catch (e) {
